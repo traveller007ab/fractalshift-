@@ -1,48 +1,77 @@
-const express = require('express');
-const axios = require('axios');
-const app = express();
-app.use(express.json());
-app.use(express.static('public'));
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scalping Trading Bot with Exness Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4">Scalping Trading Bot</h1>
+        
+        <!-- Configuration Panel -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Configuration</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium">Asset (e.g., EURUSD)</label>
+                    <input id="asset" type="text" class="w-full p-2 border rounded" value="EURUSD">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Timeframe</label>
+                    <select id="timeframe" class="w-full p-2 border rounded">
+                        <option value="M5" selected>5 Minutes</option>
+                        <option value="M15">15 Minutes</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Lot Size (min 0.13)</label>
+                    <input id="lotSize" type="number" step="0.01" min="0.13" class="w-full p-2 border rounded" value="0.13">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Mode</label>
+                    <select id="mode" class="w-full p-2 border rounded">
+                        <option value="simulated" selected>Simulated</option>
+                        <option value="exness-demo">Exness Demo</option>
+                    </select>
+                </div>
+            </div>
+            <button id="startBot" class="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Start Bot</button>
+            <button id="stopBot" class="mt-4 bg-red-500 text-white p-2 rounded hover:bg-red-600" disabled>Stop Bot</button>
+        </div>
 
-// Mock Exness API (replace with actual MT5 integration)
-const EXNESS_API_URL = 'https://api.exness.mock'; // Placeholder for demo
-const EXNESS_LOGIN = process.env.EXNESS_LOGIN;
-const EXNESS_PASSWORD = process.env.EXNESS_PASSWORD;
-const EXNESS_SERVER = process.env.EXNESS_SERVER;
+        <!-- Trade History -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Trade History</h2>
+            <p class="mb-2">Total PnL: <span id="totalPnL">0.00</span> USD</p>
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-2">Timestamp</th>
+                        <th class="p-2">Asset</th>
+                        <th class="p-2">Action</th>
+                        <th class="p-2">Price</th>
+                        <th class="p-2">Quantity</th>
+                        <th class="p-2">Stop-Loss</th>
+                        <th class="p-2">Take-Profit</th>
+                        <th class="p-2">PnL</th>
+                        <th class="p-2">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeHistory"></tbody>
+            </table>
+        </div>
 
-app.post('/trade', async (req, res) => {
-    const { asset, action, quantity, price, stopLoss, takeProfit } = req.body;
-    try {
-        // Mock MT5 trade execution
-        console.log('Mock Exness trade:', { asset, action, quantity, price, stopLoss, takeProfit });
-        // Replace with actual MT5 API call (see MQL5 setup below)
-        res.json({
-            status: 'Trade executed',
-            orderId: `mock-${Date.now()}`,
-            pnl: 0 // PnL updated by MT5 when trade closes
-        });
-    } catch (error) {
-        console.error('Trade error:', error.message);
-        res.status(500).json({ status: 'Failed', error: error.message });
-    }
-});
+        <!-- Market Chart -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Market Chart</h2>
+            <canvas id="priceChart"></canvas>
+        </div>
+    </div>
 
-app.get('/market-data/:asset/:timeframe', async (req, res) => {
-    const { asset, timeframe } = req.params;
-    try {
-        // Mock market data (replace with MT5 data feed)
-        const prices = Array.from({ length: 200 }, (_, i) => {
-            if (i < 100) return 1.0800 + i * 0.0001;
-            return 1.1000 - (i - 100) * 0.0002;
-        });
-        const highs = prices.map(p => p * 1.0001);
-        const lows = prices.map(p => p * 0.9999);
-        const timestamps = Array.from({ length: 200 }, (_, i) => new Date(Date.now() - (200 - i) * 5 * 60 * 1000).toISOString());
-        res.json({ prices, highs, lows, timestamps });
-    } catch (error) {
-        console.error('Market data error:', error.message);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.listen(3000, '0.0.0.0', () => console.log('Server running on port 3000'));
+    <script src="/script.js"></script>
+</body>
+</html>
