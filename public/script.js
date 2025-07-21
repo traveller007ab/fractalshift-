@@ -49,12 +49,12 @@ function simulateTradeOutcome(trade, currentPrice) {
     if (trade.status !== 'Open') return trade;
     console.log('Simulating trade outcome:', trade, 'Current Price:', currentPrice);
     cycleCount++;
-    // Force closure: alternate between take-profit and stop-loss
+    // Force closure for testing
     currentPrice = cycleCount % 2 === 0 ? trade.takeProfit : trade.stopLoss;
     if (trade.action === 'buy') {
         if (currentPrice <= trade.stopLoss) {
             trade.exitPrice = trade.stopLoss;
-            trade.pnl = (trade.exitPrice - trade.price) * trade.quantity * 10000; // Forex: pips * units
+            trade.pnl = (trade.exitPrice - trade.price) * trade.quantity * 10000;
             trade.status = 'Closed (Stop-Loss)';
         } else if (currentPrice >= trade.takeProfit) {
             trade.exitPrice = trade.takeProfit;
@@ -162,7 +162,7 @@ async function executeTrade(trade, mode) {
         console.log('Trade executed (exness-demo):', trade);
     } catch (error) {
         trade.status = 'Failed';
-        console.error('Trade execution failed:', error);
+        console.error('Trade execution failed:', error.message);
         tradeHistory.push(trade);
         updateTradeHistory();
     }
@@ -225,7 +225,7 @@ async function runBot() {
         updateTradeHistory();
         updateChart(marketData, ema);
     } catch (error) {
-        console.error('Bot error:', error);
+        console.error('Bot error:', error.message);
     }
     setTimeout(runBot, 10000);
 }
